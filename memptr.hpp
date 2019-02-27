@@ -8,24 +8,24 @@ namespace mp
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif
 
-    template <typename T>
+    template <typename T, int N>
     struct flag
     {
-        friend constexpr T adl(flag<T>);
+        friend constexpr T adl(flag<T, N>);
     };
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
-    template <auto Val>
+    template <auto Val, int N = 0>
     struct setptr
     {
-        friend constexpr decltype(Val) adl(flag<decltype(Val)>) { return Val; }
+        friend constexpr decltype(Val) adl(flag<decltype(Val), N>) { return Val; }
     };
 
-    template <typename T>
-    inline constexpr auto memptr = adl(flag<T>{});
+    template <typename T, int N = 0>
+    inline constexpr auto memptr = adl(flag<T, N>{});
 } // namespace mp
 
 #endif // MEMPTR_HPP_INCLUDED
