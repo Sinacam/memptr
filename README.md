@@ -4,7 +4,7 @@
 
 # Installation
 
-This is a header only library and it is tiny. Just `#include "memptr.hpp".
+This is a header only library and it is tiny. Just `#include "memptr.hpp"`.
 
 # Usage
 
