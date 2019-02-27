@@ -36,9 +36,9 @@ Everything is done at compile time. There are no uninitialized values, static in
 
 For the odr-savvy: everything is in an anonymous namespace, worry not.
 
-
-
-
+# Acknoledgements
+Guillaume Racicot for the [explanation](https://stackoverflow.com/questions/54909496/access-control-in-template-parameters) on _why_ such techniques are legal.
+Johannes Schaub - litb for the [original](http://bloglitb.blogspot.com/2010/07/access-to-private-members-thats-easy.html) idea.
 
 
 
