@@ -18,7 +18,7 @@ constexpr auto& no_privacy(A& a) { return a.*mp::memptr<int A::*>; }
 
 `memptr` is a `constexpr` value previously set by `setptr`.
 
-You set `memptr` by explicitly instantiating `setptr`. The parameter to `memptr` is the type by which `setptr` was instantiated with. As with all explicit instantiations, you should only instantiate in cpp files to avoid ODR violations.
+You set `memptr` by explicitly instantiating `setptr`. The parameter to `memptr` is the type by which `setptr` was instantiated with.
 
 ````c++
 class Point { int x, y; };
@@ -34,6 +34,7 @@ There is a second `int` parameter defaulted to `0` to allow for more than one va
 
 Everything is done at compile time. There are no uninitialized values, static initialization fiasco and overwritten values.
 
+For the odr-savvy: everything is in an anonymous namespace, worry not.
 
 
 
