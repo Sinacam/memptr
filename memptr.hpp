@@ -1,6 +1,8 @@
 #ifndef MEMPTR_HPP_INCLUDED
 #define MEMPTR_HPP_INCLUDED
 
+#include<type_traits>
+
 namespace mp
 {
     namespace
@@ -28,6 +30,12 @@ namespace mp
 
         template <typename T, int N = 0>
         constexpr auto memptr = adl(flag<T, N>{});
+
+        template<typename M, int N = 0, typename C>
+        constexpr decltype(auto) member(C&& c)
+        {
+            return static_cast<C&&>(c).*memptr<M std::decay_t<C>::*, N>;
+        }
     } // namespace
 
 } // namespace mp

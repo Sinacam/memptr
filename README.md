@@ -21,6 +21,12 @@ constexpr auto& no_privacy(A& a) { return a.*mp::memptr<int A::*>; }
 You set `memptr` by explicitly instantiating `setptr`. The parameter to `memptr` is the type by which `setptr` was instantiated with.
 
 ````c++
+constexpr auto& no_privacy_again(A& a) { return mp::member<int>(a); }
+````
+
+`member` is the member of the argument with the template argument as its type.
+
+````c++
 class Point { int x, y; };
 
 template struct mp::setptr<&Point::x>;
@@ -28,6 +34,9 @@ template struct mp::setptr<&Point::y, 1>;
 
 constexpr auto& px(Point& p) { return p.*mp::memptr<int Point::*>; }
 constexpr auto& py(Point& p) { return p.*mp::memptr<int Point::*, 1>; }
+
+constexpr auto& px_again(Point& p) { return mp::member<int>(p); }
+constexpr auto& py_again(Point& p) { return mp::member<int, 1>(p); }
 ````
 
 There is a second `int` parameter defaulted to `0` to allow for more than one value of the same type.
