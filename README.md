@@ -1,4 +1,4 @@
-# `memptr`
+# memptr
 
 `memptr` is a fully standard compliant library used to subvert the access control system without having restricted semantics over having actual access.
 
