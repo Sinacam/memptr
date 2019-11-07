@@ -55,6 +55,12 @@ A type may be specified to disambiguate between overloads and templates.
 Never use inline variables with `GETMEM`. `mp` uses types from unnamed namepsaces
 under the hood and will cause ODR violations.
 
+````c++
+// Someheader.hpp
+struct ODR { int i; };
+inline auto i = GETMEM(ODR::i);     // This will be an ODR violation
+````
+
 # Disabling GETMEM
 
 `GETMEM` can be disabled by defining `MEMPTR_NO_MACRO` before including memptr.hpp.
