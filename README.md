@@ -11,50 +11,44 @@ This is a header only library and it is tiny. Just `#include "memptr.hpp"`.
 ````c++
 class A { int i; };
 
-template struct mp::setptr<&A::i>;
+auto i = GETMEM(A::i);
 
-constexpr auto& no_privacy(A& a) { return a.*mp::memptr<int A::*>; }
+constexpr auto& not_so_private(A& a) { return mp::member(a, i); }
 ````
 
-`memptr` is a `constexpr` value previously set by `setptr`.
-
-You set `memptr` by explicitly instantiating `setptr`. The parameter to `memptr` is the type by which `setptr` was instantiated with.
+Which returns `a.i` as expected.
 
 ````c++
-constexpr auto& no_privacy_again(A& a) { return mp::member<int>(a); }
+constexpr auto& not_so_private_again(A& a) { return mp::member<i>(a); }
 ````
 
-`member` is the member of the argument with the template argument as its type.
+Also returns `a.i`, the two being equivalent.
+
+# Caveats
+
+Never use inline variables with `GETMEM`. `mp` uses types from unnamed namepsaces
+under the hood and will cause ODR violations.
+
+# Disabling GETMEM
+
+`GETMEM` can be disabled by defining `MEMPTR_NO_MACRO` before including memptr.hpp.
+To set a member without the macro
 
 ````c++
-class Point { int x, y; };
+struct B { int i; };
 
-template struct mp::setptr<&Point::x>;
-template struct mp::setptr<&Point::y, 1>;
+constexpr int i = 42;
+template struct mp::setptr<&B::i, i>;
 
-constexpr auto& px(Point& p) { return p.*mp::memptr<int Point::*>; }
-constexpr auto& py(Point& p) { return p.*mp::memptr<int Point::*, 1>; }
-
-constexpr auto& px_again(Point& p) { return mp::member<int>(p); }
-constexpr auto& py_again(Point& p) { return mp::member<int, 1>(p); }
+constexpr auto& not_so_private(B& b) { return mp::member<i>(b); }
+constexpr auto& not_so_private_again(B& b) {
+    return mp::member(b, std::integral_constant<int, i>{});
+}
 ````
 
-There is a second `int` parameter defaulted to `0` to allow for more than one value of the same type.
-
-Everything is done at compile time. There are no uninitialized values, static initialization fiasco and overwritten values.
-
-For the odr-savvy: everything is in an anonymous namespace, worry not.
+Where `i` needs to be a unique number across all declarations of `mp::setptr`
+in a translation unit. If `i` isn't unique, there will be an (arcane) compile error.
 
 # Acknowledgements
 Guillaume Racicot for the [explanation](https://stackoverflow.com/questions/54909496/access-control-in-template-parameters) on _why_ such techniques are legal.  
 Johannes Schaub - litb for the [original](http://bloglitb.blogspot.com/2010/07/access-to-private-members-thats-easy.html) idea.
-
-
-
-
-
-
-
-
-
-

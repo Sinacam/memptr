@@ -1,8 +1,6 @@
 #ifndef MEMPTR_HPP_INCLUDED
 #define MEMPTR_HPP_INCLUDED
 
-#include <type_traits>
-
 namespace mp
 {
     namespace
@@ -12,32 +10,41 @@ namespace mp
 #pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif
 
-        template <typename T, int N>
+        template <int N>
         struct flag
         {
-            friend constexpr T adl(flag<T, N>);
+            friend constexpr auto adl(flag<N>);
         };
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
-        template <auto Val, int N = 0>
+        template <auto Val, int N>
         struct setptr
         {
-            friend constexpr decltype(Val) adl(flag<decltype(Val), N>) { return Val; }
+            friend constexpr auto adl(flag<N>) { return Val; }
         };
 
-        template <typename T, int N = 0>
-        constexpr auto memptr = adl(flag<T, N>{});
+        template <int N>
+        constexpr auto memptr = adl(flag<N>{});
 
-        template <typename M, int N = 0, typename C>
-        constexpr decltype(auto) member(C&& c)
+        template <int N, typename C>
+        constexpr decltype(auto) member(C&& c, std::integral_constant<int, N> = {})
         {
-            return static_cast<C&&>(c).*memptr<M std::decay_t<C>::*, N>;
+            return static_cast<C&&>(c).*memptr<N>;
         }
     } // namespace
 
 } // namespace mp
+
+#ifndef MEMPTR_NO_MACRO
+#define GETMEM_(mem, n) \
+    std::integral_constant<int, n>{};    \
+    template struct mp::setptr<&mem, n>
+
+#define GETMEM(mem) \
+    GETMEM_(mem, __COUNTER__)
+#endif // MEMPTR_NO_MACRO
 
 #endif // MEMPTR_HPP_INCLUDED
