@@ -79,7 +79,8 @@ constexpr auto not_so_private_f(B& b) {
 ````
 
 Where `i` and `f` needs to be a unique number across all declarations of `mp::setptr`
-in a translation unit. If they aren't unique, there will be an (arcane) compile error.
+`mp::setfnptr` in a translation unit. If they aren't unique, there will be an
+(arcane) compile error.
 
 Note that passing ints as function parameters requires them to be wrapped with
  `std::integral_constant`.
