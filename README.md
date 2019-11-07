@@ -68,24 +68,27 @@ inline auto i = GETMEM(ODR::i);     // This will be an ODR violation
 To set a member without the macro
 
 ````c++
+#define MEMPTR_NO_MACRO
+#include<memptr.hpp>
+
 struct B {
     int i;
-    int f();
+    int g();
 };
 
 constexpr int i = 42;
 template struct mp::setptr<&B::i, i>;
 
-constexpr int f = 420;
-template struct mp::setfnptr<int (B::*)(), &B::f, f>;
+constexpr int g = 420;
+template struct mp::setfnptr<int (B::*)(), &B::g, g>;
 
 constexpr auto& not_so_private(B& b) { return mp::member<i>(b); }
-constexpr auto not_so_private_f(B& b) {
-    return mp::invoke(std::integral_constant<int, f>{}, b);
+constexpr auto not_so_private_g(B& b) {
+    return mp::invoke(std::integral_constant<int, g>{}, b);
 }
 ````
 
-Where `i` and `f` needs to be a unique number across all declarations of `mp::setptr`
+Where `i` and `g` needs to be a unique number across all declarations of `mp::setptr`
 `mp::setfnptr` in a translation unit. If they aren't unique, there will be an
 (arcane) compile error.
 
