@@ -23,7 +23,7 @@ namespace mp
         using add_cv_t = add_const_t<add_volatile_t<T, V>, C>;
 
         template <typename T, typename U>
-        auto match_cvref()
+        inline auto match_cvref()
         {
             using rT = std::remove_reference_t<T>;
             constexpr bool C = std::is_const_v<rT>;
@@ -44,7 +44,7 @@ namespace mp
         // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T,
                   std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
-        constexpr decltype(auto) member(C&& c, T(B::*p))
+        inline constexpr decltype(auto) member(C&& c, T(B::*p))
         {
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -61,7 +61,7 @@ namespace mp
         // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T, typename... Args,
                   std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
-        constexpr decltype(auto) invoke(T(B::*p), C&& c, Args&&... args)
+        inline constexpr decltype(auto) invoke(T(B::*p), C&& c, Args&&... args)
         {
             return std::invoke(p, (match_cvref_t<C, B>)c, std::forward<Args>(args)...);
         }
