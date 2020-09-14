@@ -31,7 +31,7 @@ Which returns `42`.
 ````c++
 constexpr auto& not_so_private_again(A& a) { return mp::member<i>(a); }
 constexpr auto& not_so_private_another(A& a) { return mp::invoke(i, a); }
-constexpr auto& not_so_private_extra(A& a) { return a.*memptr<i>; }
+constexpr auto& not_so_private_extra(A& a) { return a.*mp::memptr<i>; }
 ````
 
 Also returns `a.i`, all of them being equivalent.
