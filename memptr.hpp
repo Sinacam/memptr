@@ -1,28 +1,28 @@
 #ifndef MEMPTR_HPP_INCLUDED
 #define MEMPTR_HPP_INCLUDED
 
-#include<type_traits>
-#include<functional>
-#include<utility>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 namespace mp
 {
     namespace detail
     {
-        template<typename T>
+        template <typename T>
         struct type_identity
         {
             using type = T;
         };
 
-        template<typename T, bool C>
+        template <typename T, bool C>
         using add_const_t = std::conditional_t<C, std::add_const_t<T>, T>;
-        template<typename T, bool V>
+        template <typename T, bool V>
         using add_volatile_t = std::conditional_t<V, std::add_volatile_t<T>, T>;
-        template<typename T, bool C, bool V>
+        template <typename T, bool C, bool V>
         using add_cv_t = add_const_t<add_volatile_t<T, V>, C>;
 
-        template<typename T, typename U>
+        template <typename T, typename U>
         auto match_cvref()
         {
             using rT = std::remove_reference_t<T>;
@@ -38,13 +38,13 @@ namespace mp
         }
 
         // matches the cvref qualifiers of T to U
-        template<typename T, typename U>
+        template <typename T, typename U>
         using match_cvref_t = typename decltype(match_cvref<T, U>())::type;
 
         // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T,
-            std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
-        constexpr decltype(auto) member(C&& c, T (B::* p))
+                  std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
+        constexpr decltype(auto) member(C&& c, T(B::*p))
         {
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -60,12 +60,12 @@ namespace mp
 
         // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T, typename... Args,
-            std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
-        constexpr decltype(auto) invoke(T (B::* p), C&& c, Args&&... args)
+                  std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
+        constexpr decltype(auto) invoke(T(B::*p), C&& c, Args&&... args)
         {
             return std::invoke(p, (match_cvref_t<C, B>)c, std::forward<Args>(args)...);
         }
-    }
+    } // namespace detail
 
     namespace
     {
@@ -116,12 +116,12 @@ namespace mp
 
 #ifndef MEMPTR_NO_MACRO
 
-#define GETDATAMEM(mem, n) \
-    std::integral_constant<int, n>{};   \
+#define GETDATAMEM(mem, n)                                                                         \
+    std::integral_constant<int, n>{};                                                              \
     template struct mp::setptr<&mem, n>
 
-#define GETFNMEM(T, mem, n)    \
-    std::integral_constant<int, n>{};   \
+#define GETFNMEM(T, mem, n)                                                                        \
+    std::integral_constant<int, n>{};                                                              \
     template struct mp::setfnptr<T, &mem, n>
 
 #define MEMPTR_SELECT(_1, _2, x, ...) x
