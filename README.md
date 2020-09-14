@@ -31,7 +31,6 @@ Which returns `42`.
 ````c++
 constexpr auto& not_so_private_again(A& a) { return mp::member<i>(a); }
 constexpr auto& not_so_private_another(A& a) { return mp::invoke(i, a); }
-constexpr auto& not_so_private_extra(A& a) { return a.*memptr<i>; }
 ````
 
 Also returns `a.i`, all of them being equivalent.
@@ -55,6 +54,8 @@ A type may be specified to disambiguate between overloads and templates.
 
 Never use inline variables with `GETMEM`. `mp` uses types from unnamed namepsaces
 under the hood and will cause ODR violations.
+
+Doesn't work with ambiguous bases, aka diamond inheritance.
 
 ````c++
 // Someheader.hpp

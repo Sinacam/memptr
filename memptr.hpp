@@ -3,9 +3,44 @@
 
 #include<type_traits>
 #include<functional>
+#include<utility>
 
 namespace mp
 {
+    namespace detail
+    {
+        template<typename T>
+        struct add_ref
+        {
+            template<typename U>
+            using as = std::remove_reference_t<U>&;
+        };
+
+        template<typename T>
+        struct add_ref<T&&>
+        {
+            template<typename U>
+            using as = std::remove_reference_t<U>&&;
+        };
+
+        template<typename T, typename U>
+        using match_ref_t = typename add_ref<T>::template as<U>;
+
+        template <typename C, typename B, typename T,
+            std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
+        constexpr decltype(auto) member(C&& c, T (B::* p))
+        {
+            return (match_ref_t<C, B>)c.*p;
+        }
+
+        template <typename C, typename B, typename T, typename... Args,
+            std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
+        constexpr decltype(auto) invoke(T (B::* p), C&& c, Args&&... args)
+        {
+            return std::invoke(p, (match_ref_t<C, B>)c, std::forward<Args>(args)...);
+        }
+    }
+
     namespace
     {
 #if defined(__GNUC__) && !defined(__clang__)
@@ -41,13 +76,13 @@ namespace mp
         template <int N, typename C>
         constexpr decltype(auto) member(C&& c, std::integral_constant<int, N> = {})
         {
-            return static_cast<C&&>(c).*memptr<N>;
+            return detail::member(std::forward<C>(c), memptr<N>);
         }
 
         template <int N, typename C, typename... Args>
         constexpr decltype(auto) invoke(std::integral_constant<int, N>, C&& c, Args&&... args)
         {
-            return std::invoke(memptr<N>, static_cast<C&&>(c), static_cast<Args&&>(args)...);
+            return detail::invoke(memptr<N>, std::forward<C>(c), std::forward<Args>(args)...);
         }
     } // namespace
 
