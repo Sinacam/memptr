@@ -10,34 +10,60 @@ namespace mp
     namespace detail
     {
         template<typename T>
-        struct add_ref
+        struct type_identity
         {
-            template<typename U>
-            using as = std::remove_reference_t<U>&;
+            using type = T;
         };
 
-        template<typename T>
-        struct add_ref<T&&>
-        {
-            template<typename U>
-            using as = std::remove_reference_t<U>&&;
-        };
+        template<typename T, bool C>
+        using add_const_t = std::conditional_t<C, std::add_const_t<T>, T>;
+        template<typename T, bool V>
+        using add_volatile_t = std::conditional_t<V, std::add_volatile_t<T>, T>;
+        template<typename T, bool C, bool V>
+        using add_cv_t = add_const_t<add_volatile_t<T, V>, C>;
 
         template<typename T, typename U>
-        using match_ref_t = typename add_ref<T>::template as<U>;
+        auto match_cvref()
+        {
+            using rT = std::remove_reference_t<T>;
+            constexpr bool C = std::is_const_v<rT>;
+            constexpr bool V = std::is_volatile_v<rT>;
 
+            if constexpr(std::is_rvalue_reference_v<T>)
+                return type_identity<add_cv_t<U, C, V>&&>{};
+            else if constexpr(std::is_reference_v<T>)
+                return type_identity<add_cv_t<U, C, V>&>{};
+            else
+                return type_identity<add_cv_t<U, C, V>>{};
+        }
+
+        // matches the cvref qualifiers of T to U
+        template<typename T, typename U>
+        using match_cvref_t = typename decltype(match_cvref<T, U>())::type;
+
+        // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T,
             std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
         constexpr decltype(auto) member(C&& c, T (B::* p))
         {
-            return (match_ref_t<C, B>)c.*p;
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-stack-address"
+#endif // __clang__
+
+            return (match_cvref_t<C, B>)c.*p;
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif // __clang__
         }
 
+        // C style casts are weird exceptions to base access
         template <typename C, typename B, typename T, typename... Args,
             std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
         constexpr decltype(auto) invoke(T (B::* p), C&& c, Args&&... args)
         {
-            return std::invoke(p, (match_ref_t<C, B>)c, std::forward<Args>(args)...);
+            return std::invoke(p, (match_cvref_t<C, B>)c, std::forward<Args>(args)...);
         }
     }
 

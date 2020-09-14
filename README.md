@@ -29,11 +29,12 @@ constexpr auto not_so_private_foo(A& a) { return mp::invoke(foo, a); }
 Which returns `42`.
 
 ````c++
-constexpr auto& not_so_private_again(A& a) { return mp::member<i>(a); }
-constexpr auto& not_so_private_another(A& a) { return mp::invoke(i, a); }
+mp::member(a, i);
+mp::member<i>(a);
+mp::invoke(i, a);
 ````
 
-Also returns `a.i`, all of them being equivalent.
+Are all equivalent, meaning `a.i`.
 
 ````c++
 struct O {
@@ -47,6 +48,24 @@ constexpr auto not_so_private(O& o) { return mp::invoke(f, o); }
 ````
 
 A type may be specified to disambiguate between overloads and templates.
+
+
+````c++
+A a;
+const A ca;
+mp::member(a, i);       // int&
+mp::member(ca, i);      // const int&
+mp::member(A{}, i);     // int&&
+````
+
+Respects qualifiers.
+
+````c++
+class B : A {};
+mp::member(B{}, i);
+````
+
+Works with private base classes.
 
 # Caveats
 
