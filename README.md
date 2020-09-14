@@ -74,13 +74,13 @@ Works with private base classes.
 Never use inline variables with `GETMEM`. `mp` uses types from unnamed namepsaces
 under the hood and will cause ODR violations.
 
-Doesn't work with ambiguous bases, aka diamond inheritance.
-
 ````c++
 // Someheader.hpp
 struct ODR { int i; };
 inline auto i = GETMEM(ODR::i);     // This will be an ODR violation
 ````
+
+Doesn't work with ambiguous bases, aka diamond inheritance.
 
 # Disabling GETMEM
 
