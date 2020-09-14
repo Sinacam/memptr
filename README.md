@@ -80,8 +80,6 @@ struct ODR { int i; };
 inline auto i = GETMEM(ODR::i);     // This will be an ODR violation
 ````
 
-Doesn't work with ambiguous bases, aka diamond inheritance.
-
 # Disabling GETMEM
 
 `GETMEM` can be disabled by defining `MEMPTR_NO_MACRO` before including memptr.hpp.
