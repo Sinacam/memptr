@@ -51,7 +51,7 @@ namespace mp
 #pragma clang diagnostic ignored "-Wreturn-stack-address"
 #endif // __clang__
 
-            return (match_cvref_t<C, B>)c.*p;
+            return (match_cvref_t<C&&, B>)c.*p;
 
 #ifdef __clang__
 #pragma clang diagnostic pop
