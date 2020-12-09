@@ -63,7 +63,7 @@ namespace mp
                   std::enable_if_t<std::is_base_of_v<B, std::remove_reference_t<C>>, int> = 0>
         inline constexpr decltype(auto) invoke(T(B::*p), C&& c, Args&&... args)
         {
-            return std::invoke(p, (match_cvref_t<C, B>)c, std::forward<Args>(args)...);
+            return std::invoke(p, (match_cvref_t<C&&, B>)c, std::forward<Args>(args)...);
         }
     } // namespace detail
 
